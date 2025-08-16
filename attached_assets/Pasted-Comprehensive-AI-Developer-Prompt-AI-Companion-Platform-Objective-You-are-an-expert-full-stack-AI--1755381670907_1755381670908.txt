@@ -1,0 +1,238 @@
+Comprehensive AI Developer Prompt: AI Companion Platform
+Objective:
+You are an expert full-stack AI software architect. Your task is to generate the complete, production-ready codebase for a multi-functional "AI Companion Platform" based on the detailed project proposal below. You must adhere strictly to the specified modern tech stack, coding standards, and project structure.
+
+The final output should be a fully functional application, broken down into individual, well-documented files. For each file, provide the full code in a distinct code block, preceded by its complete file path (e.g., backend/app/main.py).
+
+1. Core Project Proposal
+(You can copy and paste the user's entire project proposal text here, from "🚀 Project Proposal" down to the "Recommendation for Development Roadmap". For brevity in this response, I will assume it is included and will refer to its sections.)
+
+Project Goal: Create a multi-functional AI-powered platform (Chat, Story, Voice, Support) with SFW/NSFW capabilities.
+
+Core Features:
+
+AI Chat Companion
+
+Personalized Story Generation
+
+Voice Interaction (TTS + STT)
+
+Anonymous Emotional Support
+
+Monetization: Freemium, Subscriptions, Tokens.
+
+Ethical Considerations: Strict age verification, content filtering, and data privacy.
+
+2. Strict Technical Specifications & Architecture
+Adhere to these specific technology choices. Use the latest stable versions for all libraries and frameworks.
+
+Frontend:
+
+Framework: Next.js (using the App Router).
+
+Language: TypeScript.
+
+Styling: Tailwind CSS for a utility-first styling approach. Use a component library like Shadcn/UI for pre-built, accessible components (Buttons, Inputs, Modals, etc.).
+
+State Management: Use React Hooks (useState, useContext) for local state and a library like Zustand for simple global state management.
+
+Backend:
+
+Framework: Python with FastAPI.
+
+Language: Python 3.11 or newer.
+
+Data Validation: Use Pydantic V2 for all data models and schemas.
+
+Asynchronous Operations: Utilize async/await for all I/O-bound operations (database calls, API requests).
+
+Database & Authentication:
+
+Service: Supabase.
+
+Database: Use the underlying PostgreSQL database provided by Supabase.
+
+Authentication: Implement user authentication using Supabase Auth. This must include:
+
+Standard email/password registration and login.
+
+Google OAuth for social login.
+
+File Storage: Use Supabase Storage for user-generated content if needed (e.g., saved story exports, voice recordings).
+
+AI & Voice Services Integration (API Layer):
+
+LLM Integration: The backend will not host the models directly. It will make API calls to a separate model serving layer. For generation purposes, create a placeholder ai_service.py that simulates API calls to models like MythoMax or Pygmalion. The function should mimic a request and return a plausible-looking text response.
+
+Speech-to-Text (STT): Integrate with an API service. Create a placeholder function that simulates calling the OpenAI Whisper API.
+
+Text-to-Speech (TTS): Integrate with an API service. Create a placeholder function that simulates calling the ElevenLabs API.
+
+Payments:
+
+Provider: Stripe. Implement the server-side logic for creating subscription checkouts and managing webhook events for payment success.
+
+Deployment:
+
+The code should be containerized. Provide a Dockerfile for the FastAPI backend.
+
+Provide a root docker-compose.yml for simplified local development.
+
+3. Code Generation & Documentation Standards
+This is a non-negotiable requirement.
+
+Code Quality: The code must be clean, modular, and follow SOLID principles.
+
+Commenting:
+
+Add inline comments to explain complex or non-obvious logic.
+
+Every file should start with a brief comment explaining its purpose.
+
+Documentation:
+
+Python (Backend): Generate comprehensive Google-style docstrings for all modules, classes, and functions.
+
+TypeScript (Frontend): Use JSDoc/TSDoc comments for all functions, React components (explaining props), and hooks.
+
+Environment Variables: Do not hardcode any secrets or configuration values. All configuration (API keys, database URLs, etc.) must be managed through environment variables. Provide a backend/.env.example and frontend/.env.example file listing all required variables.
+
+Error Handling: Implement robust error handling and user-friendly feedback on both the frontend and backend. The backend API should return meaningful HTTP status codes and error messages.
+
+Security: Implement security best practices, including input validation, protection against common web vulnerabilities (XSS, CSRF), and secure handling of authentication tokens.
+
+4. Detailed Project Structure
+Generate the project with the following file and directory structure.
+
+/ai-companion-platform
+│
+├── backend/
+│   ├── app/
+│   │   ├── api/
+│   │   │   ├── __init__.py
+│   │   │   ├── endpoints/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── auth.py         # User registration, login, logout
+│   │   │   │   ├── chat.py         # Websocket/HTTP for chat
+│   │   │   │   ├── story.py        # Story generation
+│   │   │   │   └── user.py         # User profile management
+│   │   │   └── api_router.py   # Main API router
+│   │   ├── core/
+│   │   │   ├── __init__.py
+│   │   │   └── config.py       # Pydantic settings management for env vars
+│   │   ├── db/
+│   │   │   ├── __init__.py
+│   │   │   └── supabase_client.py # Supabase client initialization
+│   │   ├── models/
+│   │   │   ├── __init__.py
+│   │   │   ├── user.py         # Pydantic models for User data
+│   │   │   └── token.py        # Pydantic models for auth tokens
+│   │   ├── schemas/
+│   │   │   ├── __init__.py
+│   │   │   └── chat.py         # Pydantic schemas for API requests/responses
+│   │   └── services/
+│   │   │   ├── __init__.py
+│   │   │   ├── ai_service.py     # Placeholder for LLM API calls
+│   │   │   └── voice_service.py  # Placeholder for STT/TTS API calls
+│   │   ├── __init__.py
+│   │   └── main.py             # FastAPI app entrypoint
+│   ├── .env.example
+│   ├── Dockerfile
+│   └── requirements.txt
+│
+├── frontend/
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── (auth)/             # Route group for auth pages
+│   │   │   │   ├── login/page.tsx
+│   │   │   │   └── signup/page.tsx
+│   │   │   ├── (platform)/         # Route group for protected routes
+│   │   │   │   ├── chat/page.tsx
+│   │   │   │   ├── story/page.tsx
+│   │   │   │   ├── support/page.tsx
+│   │   │   │   └── layout.tsx      # Layout with sidebar/nav
+│   │   │   ├── api/auth/[...nextauth]/route.ts # (Optional if using NextAuth with Supabase)
+│   │   │   ├── layout.tsx
+│   │   │   └── page.tsx            # Landing page
+│   │   ├── components/
+│   │   │   ├── ui/                 # Shadcn/UI components
+│   │   │   ├── auth/
+│   │   │   │   ├── LoginForm.tsx
+│   │   │   │   └── GoogleSignInButton.tsx
+│   │   │   └── chat/
+│   │   │       ├── ChatWindow.tsx
+│   │   │       └── Message.tsx
+│   │   ├── lib/
+│   │   │   ├── supabase/client.ts  # Supabase client-side helper
+│   │   │   └── supabase/server.ts  # Supabase server-side helper
+│   │   ├── providers/
+│   │   │   └── AuthProvider.tsx    # Manages user session state
+│   │   └── store/
+│   │       └── useChatStore.ts     # Zustand store for chat state
+│   ├── .env.local.example
+│   ├── next.config.mjs
+│   ├── package.json
+│   ├── postcss.config.js
+│   ├── tailwind.config.ts
+│   └── tsconfig.json
+│
+├── docker-compose.yml
+└── README.md
+5. Step-by-Step Generation Plan
+Please generate the code sequentially, following this plan. Acknowledge each step before providing the complete code for all files within that step.
+
+Step 1: Project Scaffolding & Environment Setup
+
+README.md (root): High-level project overview.
+
+docker-compose.yml: To run the backend service.
+
+backend/.env.example, frontend/.env.local.example: Define all necessary environment variables.
+
+backend/requirements.txt, frontend/package.json: List all dependencies.
+
+Step 2: Backend Core - FastAPI, Supabase, and Authentication
+
+Generate the core FastAPI application structure (main.py, config.py).
+
+Implement the Supabase client initialization (supabase_client.py).
+
+Create Pydantic models for User and Token (user.py, token.py).
+
+Build the authentication endpoints (auth.py) for email/password registration, login (returning a JWT from Supabase), and setting up the logic for handling the Google OAuth callback.
+
+Step 3: Frontend Core - Next.js, Supabase Auth, and UI Layout
+
+Set up the Next.js project with Tailwind CSS and Shadcn/UI.
+
+Implement the Supabase client helpers (client.ts, server.ts).
+
+Create the AuthProvider.tsx to manage and share user session state across the app.
+
+Build the authentication pages ((auth)/login/page.tsx, (auth)/signup/page.tsx) with forms and the Google sign-in button component.
+
+Set up the protected route group (platform) and its shared layout.
+
+Step 4: Feature 1 - AI Chat Companion
+
+Backend: Create the chat.py endpoint. It should accept user messages, call the placeholder ai_service.py, and return the AI's response. Include logic for conversation memory (e.g., passing recent history back to the AI service).
+
+Frontend: Build the ChatWindow.tsx component. It should manage message history, handle user input, and call the backend API to get responses. Use the Zustand store (useChatStore.ts) to manage chat state.
+
+Step 5: Subsequent Features (Story, Voice, Support)
+
+For each remaining core feature, generate the corresponding backend endpoint (story.py, etc.) and the frontend page/components. Follow the same pattern: define the API, build the UI, and connect them.
+
+For Voice Interaction, the frontend will need to use the browser's MediaRecorder API to capture audio, send it to the backend, which then calls the placeholder STT service. The backend returns the audio stream from the TTS service, which the frontend plays using an <audio> element.
+
+Step 6: Final Documentation
+
+Generate comprehensive README.md files for both the frontend and backend directories. These should include detailed instructions on:
+
+How to set up the project locally.
+
+How to install dependencies.
+
+How to set up the .env files with Supabase/Stripe/AI service keys.
+
+How to run the application.
