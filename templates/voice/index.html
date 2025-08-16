@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Voice Interaction - AI Companion Platform{% endblock %}
+
+{% block extra_head %}
+<style>
+    .voice-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .voice-button {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: none;
+        font-size: 2rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .voice-button:not(:disabled):hover {
+        transform: scale(1.05);
+    }
+    
+    .voice-button.listening {
+        animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.7); }
+        70% { box-shadow: 0 0 0 15px rgba(13, 110, 253, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0); }
+    }
+    
+    .conversation-display {
+        max-height: 400px;
+        overflow-y: auto;
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+    }
+    
+    .voice-message {
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+        border-radius: 10px;
+    }
+    
+    .voice-message.user {
+        background: var(--bs-primary);
+        color: white;
+        margin-left: 20%;
+    }
+    
+    .voice-message.ai {
+        background: white;
+        border: 1px solid #dee2e6;
+        margin-right: 20%;
+    }
+    
+    .status-indicator {
+        height: 20px;
+        margin-bottom: 1rem;
+    }
+    
+    .settings-card {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="voice-container">
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <h2 class="display-5 fw-bold">
+                <i class="fas fa-microphone text-primary me-2"></i>Voice Interaction
+            </h2>
+            <p class="lead text-muted">Talk naturally with your AI companion using voice</p>
+        </div>
+        
+        <!-- Voice Controls -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body text-center py-4">
+                <div class="status-indicator mb-3">
+                    <span id="statusText" class="text-muted">Click the microphone to start</span>
+                </div>
+                
+                <div class="voice-controls mb-3">
+                    <button id="voiceButton" class="voice-button btn btn-primary">
+                        <i class="fas fa-microphone" id="voiceIcon"></i>
+                    </button>
+                </div>
+                
+                <div class="voice-actions">
+                    <button id="stopButton" class="btn btn-outline-danger me-2" disabled>
+                        <i class="fas fa-stop me-1"></i>Stop
+                    </button>
+                    <button id="clearButton" class="btn btn-outline-secondary">
+                        <i class="fas fa-trash me-1"></i>Clear
+                    </button>
+                </div>
+                
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Click and hold the microphone to speak, release to process
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Text Input Alternative -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-keyboard me-2"></i>Type Instead
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="input-group">
+                    <textarea id="textInput" class="form-control" rows="2" 
+                              placeholder="Type your message here..."></textarea>
+                    <button id="sendTextButton" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Conversation Display -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                    <i class="fas fa-comments me-2"></i>Conversation
+                </h6>
+                <span class="badge bg-primary" id="messageCount">0 messages</span>
+            </div>
+            <div class="card-body">
+                <div id="conversationDisplay" class="conversation-display">
+                    <div class="text-center text-muted py-3" id="emptyState">
+                        <i class="fas fa-microphone fa-2x mb-2"></i>
+                        <p class="mb-0">Start speaking to begin your conversation</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Voice Settings -->
+        <div class="card settings-card border-0">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-cog me-2"></i>Voice Settings
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="voiceSelect" class="form-label">Voice</label>
+                        <select id="voiceSelect" class="form-select">
+                            <option value="">Default Voice</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="rateRange" class="form-label">Speech Rate: <span id="rateValue">1.0</span></label>
+                        <input type="range" class="form-range" id="rateRange" min="0.5" max="2" step="0.1" value="1">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="pitchRange" class="form-label">Pitch: <span id="pitchValue">1.0</span></label>
+                        <input type="range" class="form-range" id="pitchRange" min="0.5" max="2" step="0.1" value="1">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="volumeRange" class="form-label">Volume: <span id="volumeValue">1.0</span></label>
+                        <input type="range" class="form-range" id="volumeRange" min="0" max="1" step="0.1" value="1">
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <button id="testVoiceButton" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-play me-1"></i>Test Voice
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Browser Compatibility Notice -->
+        <div class="mt-4">
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Note:</strong> Voice features require a modern browser with microphone permissions. 
+                Make sure to allow microphone access when prompted.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/voice.js') }}"></script>
+{% endblock %}

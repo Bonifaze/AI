@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}Story Generation - AI Companion Platform{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Story Generation Form -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-magic me-2"></i>Create New Story
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('generate_story') }}" id="storyForm">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.title.label(class="form-label") }}
+                            {{ form.title(class="form-control", placeholder="Enter a captivating title...") }}
+                            {% if form.title.errors %}
+                                <div class="text-danger small">
+                                    {% for error in form.title.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.genre.label(class="form-label") }}
+                            {{ form.genre(class="form-select") }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.character_name.label(class="form-label") }}
+                            {{ form.character_name(class="form-control", placeholder="Main character's name (optional)") }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.setting.label(class="form-label") }}
+                            {{ form.setting(class="form-control", placeholder="Where does the story take place?") }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.mood.label(class="form-label") }}
+                            {{ form.mood(class="form-select") }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.length.label(class="form-label") }}
+                            {{ form.length(class="form-select") }}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success w-100" id="generateBtn">
+                            <i class="fas fa-magic me-2"></i>Generate Story
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Tips Card -->
+            <div class="card border-0 shadow mt-3">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="fas fa-lightbulb text-warning me-2"></i>Story Tips
+                    </h6>
+                    <ul class="list-unstyled small text-muted mb-0">
+                        <li><i class="fas fa-check text-success me-1"></i> Be specific with your setting</li>
+                        <li><i class="fas fa-check text-success me-1"></i> Unique character names work best</li>
+                        <li><i class="fas fa-check text-success me-1"></i> Try different mood combinations</li>
+                        <li><i class="fas fa-check text-success me-1"></i> Longer stories have more depth</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stories List -->
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h4 mb-0">
+                    <i class="fas fa-book me-2"></i>Your Stories
+                </h2>
+                <span class="badge bg-success">{{ stories|length }} stories</span>
+            </div>
+            
+            {% if stories %}
+                <div class="row">
+                    {% for story in stories %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h5 class="card-title mb-0">
+                                            <a href="{{ url_for('view_story', story_id=story.id) }}" 
+                                               class="text-decoration-none">
+                                                {{ story.title }}
+                                            </a>
+                                            {% if story.is_favorite %}
+                                                <i class="fas fa-star text-warning ms-1"></i>
+                                            {% endif %}
+                                        </h5>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-secondary" type="button" 
+                                                    data-bs-toggle="dropdown">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a class="dropdown-item" href="{{ url_for('view_story', story_id=story.id) }}">
+                                                        <i class="fas fa-eye me-2"></i>View
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <form method="POST" action="{{ url_for('toggle_story_favorite', story_id=story.id) }}" style="display: inline;">
+                                                        <button type="submit" class="dropdown-item">
+                                                            <i class="fas fa-star me-2"></i>
+                                                            {{ 'Remove from' if story.is_favorite else 'Add to' }} Favorites
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
+                                                    <form method="POST" action="{{ url_for('delete_story', story_id=story.id) }}" 
+                                                          style="display: inline;" onsubmit="return confirm('Delete this story?')">
+                                                        <button type="submit" class="dropdown-item text-danger">
+                                                            <i class="fas fa-trash me-2"></i>Delete
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-2">
+                                        <span class="badge bg-success-subtle text-success me-1">
+                                            {{ story.genre.title() }}
+                                        </span>
+                                        <span class="badge bg-info-subtle text-info me-1">
+                                            {{ story.mood.title() }}
+                                        </span>
+                                        <span class="badge bg-warning-subtle text-warning">
+                                            {{ story.length.title() }}
+                                        </span>
+                                    </div>
+                                    
+                                    <p class="card-text text-muted small">
+                                        {{ story.content[:150] }}...
+                                    </p>
+                                    
+                                    {% if story.character_name or story.setting %}
+                                        <div class="mb-2">
+                                            {% if story.character_name %}
+                                                <small class="text-muted">
+                                                    <i class="fas fa-user me-1"></i>{{ story.character_name }}
+                                                </small>
+                                            {% endif %}
+                                            {% if story.setting %}
+                                                <small class="text-muted">
+                                                    <i class="fas fa-map-marker-alt me-1"></i>{{ story.setting }}
+                                                </small>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mt-auto">
+                                        <small class="text-muted">
+                                            {{ story.created_at.strftime('%B %d, %Y') }}
+                                        </small>
+                                        <a href="{{ url_for('view_story', story_id=story.id) }}" 
+                                           class="btn btn-sm btn-outline-success">
+                                            Read More <i class="fas fa-arrow-right ms-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-book fa-4x text-muted mb-3"></i>
+                        <h4>No Stories Yet</h4>
+                        <p class="text-muted">Create your first AI-generated story by filling out the form on the left.</p>
+                        <p class="text-muted small">
+                            Our AI can create personalized stories in various genres with your custom characters and settings.
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/story.js') }}"></script>
+{% endblock %}

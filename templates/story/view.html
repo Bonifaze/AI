@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}{{ story.title }} - AI Companion Platform{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Story Header -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h1 class="h3 mb-2">
+                                {{ story.title }}
+                                {% if story.is_favorite %}
+                                    <i class="fas fa-star text-warning ms-2"></i>
+                                {% endif %}
+                            </h1>
+                            <div class="mb-2">
+                                <span class="badge bg-success-subtle text-success me-2">
+                                    <i class="fas fa-tag me-1"></i>{{ story.genre.title() }}
+                                </span>
+                                <span class="badge bg-info-subtle text-info me-2">
+                                    <i class="fas fa-palette me-1"></i>{{ story.mood.title() }}
+                                </span>
+                                <span class="badge bg-warning-subtle text-warning">
+                                    <i class="fas fa-clock me-1"></i>{{ story.length.title() }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <form method="POST" action="{{ url_for('toggle_story_favorite', story_id=story.id) }}" style="display: inline;">
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="fas fa-star me-2"></i>
+                                            {{ 'Remove from' if story.is_favorite else 'Add to' }} Favorites
+                                        </button>
+                                    </form>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form method="POST" action="{{ url_for('delete_story', story_id=story.id) }}" 
+                                          style="display: inline;" onsubmit="return confirm('Delete this story?')">
+                                        <button type="submit" class="dropdown-item text-danger">
+                                            <i class="fas fa-trash me-2"></i>Delete Story
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    {% if story.character_name or story.setting %}
+                        <div class="story-meta mb-3 p-3 bg-light rounded">
+                            <div class="row">
+                                {% if story.character_name %}
+                                    <div class="col-md-6">
+                                        <strong class="text-muted">
+                                            <i class="fas fa-user me-2"></i>Main Character:
+                                        </strong>
+                                        <span>{{ story.character_name }}</span>
+                                    </div>
+                                {% endif %}
+                                {% if story.setting %}
+                                    <div class="col-md-6">
+                                        <strong class="text-muted">
+                                            <i class="fas fa-map-marker-alt me-2"></i>Setting:
+                                        </strong>
+                                        <span>{{ story.setting }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar me-1"></i>
+                            Created on {{ story.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                        </small>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary" onclick="copyStory()">
+                                <i class="fas fa-copy me-1"></i>Copy
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="readAloud()">
+                                <i class="fas fa-volume-up me-1"></i>Read Aloud
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Story Content -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="story-content" id="storyContent">
+                        {% for paragraph in story.content.split('\n\n') %}
+                            {% if paragraph.strip() %}
+                                <p class="mb-3">{{ paragraph }}</p>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <div class="mt-4 text-center">
+                <a href="{{ url_for('story') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Stories
+                </a>
+                <a href="{{ url_for('story') }}" class="btn btn-success ms-2">
+                    <i class="fas fa-plus me-2"></i>Create New Story
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast for copy success -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="copyToast" class="toast" role="alert">
+        <div class="toast-header">
+            <i class="fas fa-check-circle text-success me-2"></i>
+            <strong class="me-auto">Success</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body">
+            Story copied to clipboard!
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function copyStory() {
+    const storyContent = document.getElementById('storyContent').innerText;
+    const title = "{{ story.title }}";
+    const fullText = `${title}\n\n${storyContent}`;
+    
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(fullText).then(() => {
+            showCopyToast();
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+            fallbackCopyTextToClipboard(fullText);
+        });
+    } else {
+        fallbackCopyTextToClipboard(fullText);
+    }
+}
+
+function fallbackCopyTextToClipboard(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        document.execCommand('copy');
+        showCopyToast();
+    } catch (err) {
+        console.error('Fallback: Oops, unable to copy', err);
+    }
+    
+    document.body.removeChild(textArea);
+}
+
+function showCopyToast() {
+    const toast = new bootstrap.Toast(document.getElementById('copyToast'));
+    toast.show();
+}
+
+function readAloud() {
+    const storyContent = document.getElementById('storyContent').innerText;
+    
+    if ('speechSynthesis' in window) {
+        // Stop any ongoing speech
+        speechSynthesis.cancel();
+        
+        const utterance = new SpeechSynthesisUtterance(storyContent);
+        utterance.rate = 0.8;
+        utterance.pitch = 1;
+        utterance.volume = 1;
+        
+        speechSynthesis.speak(utterance);
+    } else {
+        alert('Text-to-speech is not supported in your browser.');
+    }
+}
+</script>
+{% endblock %}

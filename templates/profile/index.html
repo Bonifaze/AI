@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - AI Companion Platform{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Profile Header -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-user-circle fa-2x me-3"></i>
+                        <div>
+                            <h4 class="mb-0">My Profile</h4>
+                            <small class="opacity-75">Manage your account settings and preferences</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('update_profile') }}">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Username</label>
+                                <input type="text" class="form-control" value="{{ current_user.username }}" readonly>
+                                <div class="form-text">Username cannot be changed</div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" value="{{ current_user.email }}" readonly>
+                                <div class="form-text">Contact support to change email</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.display_name.label(class="form-label") }}
+                            {{ form.display_name(class="form-control", placeholder="Enter your display name") }}
+                            {% if form.display_name.errors %}
+                                <div class="text-danger small">
+                                    {% for error in form.display_name.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">This is how your name will appear in the interface</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.bio.label(class="form-label") }}
+                            {{ form.bio(class="form-control", rows="3", placeholder="Tell us a bit about yourself...") }}
+                            {% if form.bio.errors %}
+                                <div class="text-danger small">
+                                    {% for error in form.bio.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Optional personal description (500 characters max)</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            {{ form.theme_preference.label(class="form-label") }}
+                            {{ form.theme_preference(class="form-select") }}
+                            <div class="form-text">Choose your preferred interface theme</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Account Statistics -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fas fa-comments fa-2x text-primary mb-2"></i>
+                            <h5 class="card-title">{{ current_user.conversations|length }}</h5>
+                            <p class="card-text text-muted">Total Conversations</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fas fa-book fa-2x text-success mb-2"></i>
+                            <h5 class="card-title">{{ current_user.stories|length }}</h5>
+                            <p class="card-text text-muted">Stories Created</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Account Information -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Account Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <strong>Member Since:</strong><br>
+                                <span class="text-muted">{{ current_user.created_at.strftime('%B %d, %Y') }}</span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <strong>Account Status:</strong><br>
+                                <span class="badge bg-success">Active</span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    {% if current_user.bio %}
+                        <div class="mt-3">
+                            <strong>About:</strong><br>
+                            <span class="text-muted">{{ current_user.bio }}</span>
+                        </div>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <div class="text-center">
+                        <small class="text-muted">
+                            <i class="fas fa-shield-alt me-1"></i>
+                            Your privacy and data security are our top priorities. 
+                            <a href="#" class="text-decoration-none">Learn more</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

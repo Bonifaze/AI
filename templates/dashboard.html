@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - AI Companion Platform{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Welcome Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="welcome-card card border-0 bg-gradient-primary text-white">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="h3 mb-2">Welcome back, {{ current_user.display_name or current_user.username }}!</h1>
+                            <p class="mb-0 opacity-75">Ready to continue your AI companion journey? Choose an activity below.</p>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <i class="fas fa-robot fa-3x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="h4 mb-3">Quick Actions</h2>
+        </div>
+        
+        <div class="col-md-6 col-lg-3 mb-3">
+            <a href="{{ url_for('chat') }}" class="text-decoration-none">
+                <div class="action-card card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="action-icon mb-3">
+                            <i class="fas fa-comments text-primary fa-2x"></i>
+                        </div>
+                        <h5 class="card-title">Start New Chat</h5>
+                        <p class="card-text text-muted small">Begin a conversation with your AI companion</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-6 col-lg-3 mb-3">
+            <a href="{{ url_for('story') }}" class="text-decoration-none">
+                <div class="action-card card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="action-icon mb-3">
+                            <i class="fas fa-book text-success fa-2x"></i>
+                        </div>
+                        <h5 class="card-title">Generate Story</h5>
+                        <p class="card-text text-muted small">Create a personalized story</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-6 col-lg-3 mb-3">
+            <a href="{{ url_for('voice') }}" class="text-decoration-none">
+                <div class="action-card card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="action-icon mb-3">
+                            <i class="fas fa-microphone text-warning fa-2x"></i>
+                        </div>
+                        <h5 class="card-title">Voice Chat</h5>
+                        <p class="card-text text-muted small">Talk with text-to-speech</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-6 col-lg-3 mb-3">
+            <a href="{{ url_for('support') }}" class="text-decoration-none">
+                <div class="action-card card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="action-icon mb-3">
+                            <i class="fas fa-heart text-danger fa-2x"></i>
+                        </div>
+                        <h5 class="card-title">Emotional Support</h5>
+                        <p class="card-text text-muted small">Get anonymous support</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row">
+        <!-- Recent Conversations -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comments text-primary me-2"></i>Recent Conversations
+                    </h5>
+                    <a href="{{ url_for('chat') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_conversations %}
+                        <div class="list-group list-group-flush">
+                            {% for conversation in recent_conversations %}
+                                <div class="list-group-item border-0 px-0">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">
+                                                <a href="{{ url_for('chat', conversation_id=conversation.id) }}" 
+                                                   class="text-decoration-none">
+                                                    {{ conversation.title }}
+                                                </a>
+                                            </h6>
+                                            <p class="mb-1 text-muted small">
+                                                {% if conversation.conversation_type == 'support' %}
+                                                    <span class="badge bg-danger-subtle text-danger">
+                                                        <i class="fas fa-heart me-1"></i>Support
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-primary-subtle text-primary">
+                                                        <i class="fas fa-comments me-1"></i>Chat
+                                                    </span>
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                        <small class="text-muted">
+                                            {{ conversation.updated_at.strftime('%b %d') }}
+                                        </small>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No conversations yet. Start your first chat!</p>
+                            <a href="{{ url_for('chat') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-1"></i>Start Chatting
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Stories -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-book text-success me-2"></i>Recent Stories
+                    </h5>
+                    <a href="{{ url_for('story') }}" class="btn btn-sm btn-outline-success">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_stories %}
+                        <div class="list-group list-group-flush">
+                            {% for story in recent_stories %}
+                                <div class="list-group-item border-0 px-0">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">
+                                                <a href="{{ url_for('view_story', story_id=story.id) }}" 
+                                                   class="text-decoration-none">
+                                                    {{ story.title }}
+                                                </a>
+                                                {% if story.is_favorite %}
+                                                    <i class="fas fa-star text-warning ms-1"></i>
+                                                {% endif %}
+                                            </h6>
+                                            <p class="mb-1 text-muted small">
+                                                <span class="badge bg-success-subtle text-success">
+                                                    {{ story.genre.title() }}
+                                                </span>
+                                                •
+                                                <span class="badge bg-info-subtle text-info">
+                                                    {{ story.length.title() }}
+                                                </span>
+                                            </p>
+                                        </div>
+                                        <small class="text-muted">
+                                            {{ story.created_at.strftime('%b %d') }}
+                                        </small>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No stories yet. Create your first story!</p>
+                            <a href="{{ url_for('story') }}" class="btn btn-success">
+                                <i class="fas fa-plus me-1"></i>Generate Story
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

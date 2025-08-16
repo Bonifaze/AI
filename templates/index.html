@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+
+{% block title %}AI Companion Platform - Your Personal AI Assistant{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section bg-gradient-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center min-vh-50">
+            <div class="col-lg-6">
+                <div class="hero-content">
+                    <h1 class="display-4 fw-bold mb-4">
+                        Your Personal AI Companion
+                    </h1>
+                    <p class="lead mb-4">
+                        Experience meaningful conversations, generate creative stories, 
+                        and find emotional support with our advanced AI platform.
+                    </p>
+                    
+                    {% if current_user.is_authenticated %}
+                        <div class="d-flex gap-3 flex-wrap">
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-light btn-lg">
+                                <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                            </a>
+                            <a href="{{ url_for('chat') }}" class="btn btn-outline-light btn-lg">
+                                <i class="fas fa-comments me-2"></i>Start Chatting
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="d-flex gap-3 flex-wrap">
+                            <a href="{{ url_for('register') }}" class="btn btn-light btn-lg">
+                                <i class="fas fa-user-plus me-2"></i>Get Started
+                            </a>
+                            <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="hero-image">
+                    <i class="fas fa-robot hero-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold">Discover Your AI Companion</h2>
+            <p class="lead text-muted">Explore our powerful features designed to enhance your daily life</p>
+        </div>
+        
+        <div class="row g-4">
+            <!-- AI Chat Feature -->
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-comments text-primary"></i>
+                        </div>
+                        <h5 class="card-title">AI Chat Companion</h5>
+                        <p class="card-text text-muted">
+                            Engage in natural conversations with our intelligent AI that understands context and emotion.
+                        </p>
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('chat') }}" class="btn btn-outline-primary">
+                                Start Chatting <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Story Generation Feature -->
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-book text-success"></i>
+                        </div>
+                        <h5 class="card-title">Story Generation</h5>
+                        <p class="card-text text-muted">
+                            Create personalized stories with custom characters, settings, and themes in any genre.
+                        </p>
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('story') }}" class="btn btn-outline-success">
+                                Create Story <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Voice Interaction Feature -->
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-microphone text-warning"></i>
+                        </div>
+                        <h5 class="card-title">Voice Interaction</h5>
+                        <p class="card-text text-muted">
+                            Experience hands-free conversations with natural text-to-speech capabilities.
+                        </p>
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('voice') }}" class="btn btn-outline-warning">
+                                Try Voice <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Emotional Support Feature -->
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-heart text-danger"></i>
+                        </div>
+                        <h5 class="card-title">Emotional Support</h5>
+                        <p class="card-text text-muted">
+                            Find comfort and guidance in a safe, anonymous environment designed for emotional wellbeing.
+                        </p>
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('support') }}" class="btn btn-outline-danger">
+                                Get Support <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+{% if not current_user.is_authenticated %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold">How It Works</h2>
+            <p class="lead text-muted">Get started in just a few simple steps</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4 text-center">
+                <div class="step-card">
+                    <div class="step-number mb-3">
+                        <span class="badge bg-primary fs-4 rounded-circle p-3">1</span>
+                    </div>
+                    <h5>Create Your Account</h5>
+                    <p class="text-muted">Sign up for free and create your personalized profile in seconds.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 text-center">
+                <div class="step-card">
+                    <div class="step-number mb-3">
+                        <span class="badge bg-primary fs-4 rounded-circle p-3">2</span>
+                    </div>
+                    <h5>Choose Your Experience</h5>
+                    <p class="text-muted">Select from chat, story generation, voice interaction, or emotional support.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 text-center">
+                <div class="step-card">
+                    <div class="step-number mb-3">
+                        <span class="badge bg-primary fs-4 rounded-circle p-3">3</span>
+                    </div>
+                    <h5>Start Your Journey</h5>
+                    <p class="text-muted">Begin meaningful interactions with your AI companion instantly.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-rocket me-2"></i>Start Your Journey Today
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Benefits Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="display-5 fw-bold mb-4">Why Choose Our AI Companion?</h2>
+                <div class="benefits-list">
+                    <div class="benefit-item d-flex mb-3">
+                        <div class="benefit-icon me-3">
+                            <i class="fas fa-shield-alt text-success"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Privacy & Security</h6>
+                            <p class="text-muted mb-0">Your conversations are secure and private, with enterprise-grade encryption.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="benefit-item d-flex mb-3">
+                        <div class="benefit-icon me-3">
+                            <i class="fas fa-clock text-primary"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">24/7 Availability</h6>
+                            <p class="text-muted mb-0">Your AI companion is always available when you need support or conversation.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="benefit-item d-flex mb-3">
+                        <div class="benefit-icon me-3">
+                            <i class="fas fa-brain text-warning"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Intelligent Understanding</h6>
+                            <p class="text-muted mb-0">Advanced AI that learns and adapts to your communication style and preferences.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="benefit-item d-flex">
+                        <div class="benefit-icon me-3">
+                            <i class="fas fa-heart text-danger"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Emotional Intelligence</h6>
+                            <p class="text-muted mb-0">Designed with empathy and understanding for meaningful emotional connections.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6 text-center">
+                <div class="benefits-graphic">
+                    <div class="floating-icons">
+                        <i class="fas fa-comments floating-icon"></i>
+                        <i class="fas fa-book floating-icon"></i>
+                        <i class="fas fa-microphone floating-icon"></i>
+                        <i class="fas fa-heart floating-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
