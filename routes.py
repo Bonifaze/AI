@@ -9,7 +9,7 @@ import logging
 # Initialize Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'login'
+# login_manager.login_view = 'login'
 login_manager.login_message = 'Please log in to access this page.'
 
 @login_manager.user_loader
@@ -65,11 +65,10 @@ def register():
             return render_template('auth/register.html', form=form)
         
         # Create new user
-        user = User(
-            username=form.username.data,
-            email=form.email.data,
-            display_name=form.username.data
-        )
+        user = User()
+        user.username = form.username.data
+        user.email = form.email.data
+        user.display_name = form.username.data
         user.set_password(form.password.data)
         
         try:
@@ -151,20 +150,18 @@ def send_message():
             ).first_or_404()
         else:
             # Create new conversation
-            conversation = Conversation(
-                user_id=current_user.id,
-                title=f"Chat {len(current_user.conversations) + 1}",
-                conversation_type='chat'
-            )
+            conversation = Conversation()
+            conversation.user_id = current_user.id
+            conversation.title = f"Chat {len(current_user.conversations) + 1}"
+            conversation.conversation_type = 'chat'
             db.session.add(conversation)
             db.session.flush()  # Get the ID
         
         # Add user message
-        user_message = Message(
-            conversation_id=conversation.id,
-            content=form.message.data,
-            is_user_message=True
-        )
+        user_message = Message()
+        user_message.conversation_id = conversation.id
+        user_message.content = form.message.data or ""
+        user_message.is_user_message = True
         db.session.add(user_message)
         
         # Get conversation history for AI context
@@ -182,15 +179,14 @@ def send_message():
         # Generate AI response
         try:
             ai_response = ai_service.generate_chat_response(
-                form.message.data, history, 'chat'
+                form.message.data or "", history, 'chat'
             )
             
             # Add AI message
-            ai_message = Message(
-                conversation_id=conversation.id,
-                content=ai_response,
-                is_user_message=False
-            )
+            ai_message = Message()
+            ai_message.conversation_id = conversation.id
+            ai_message.content = ai_response
+            ai_message.is_user_message = False
             db.session.add(ai_message)
             
             # Update conversation timestamp
@@ -204,7 +200,9 @@ def send_message():
             logging.error(f"Error generating AI response: {e}")
             flash('Sorry, I encountered an error. Please try again.', 'danger')
     
-    return redirect(url_for('chat', conversation_id=conversation.id))
+    if 'conversation' in locals():
+        return redirect(url_for('chat', conversation_id=conversation.id))
+    return redirect(url_for('chat'))
 
 @app.route('/support')
 @app.route('/support/<int:conversation_id>')
@@ -249,20 +247,18 @@ def send_support_message():
             ).first_or_404()
         else:
             # Create new support conversation
-            conversation = Conversation(
-                user_id=current_user.id,
-                title=f"Support Session {len([c for c in current_user.conversations if c.conversation_type == 'support']) + 1}",
-                conversation_type='support'
-            )
+            conversation = Conversation()
+            conversation.user_id = current_user.id
+            conversation.title = f"Support Session {len([c for c in current_user.conversations if c.conversation_type == 'support']) + 1}"
+            conversation.conversation_type = 'support'
             db.session.add(conversation)
             db.session.flush()
         
         # Add user message
-        user_message = Message(
-            conversation_id=conversation.id,
-            content=form.message.data,
-            is_user_message=True
-        )
+        user_message = Message()
+        user_message.conversation_id = conversation.id
+        user_message.content = form.message.data or ""
+        user_message.is_user_message = True
         db.session.add(user_message)
         
         # Get conversation history
@@ -280,14 +276,13 @@ def send_support_message():
         # Generate supportive AI response
         try:
             ai_response = ai_service.generate_chat_response(
-                form.message.data, history, 'support'
+                form.message.data or "", history, 'support'
             )
             
-            ai_message = Message(
-                conversation_id=conversation.id,
-                content=ai_response,
-                is_user_message=False
-            )
+            ai_message = Message()
+            ai_message.conversation_id = conversation.id
+            ai_message.content = ai_response
+            ai_message.is_user_message = False
             db.session.add(ai_message)
             
             conversation.updated_at = db.func.now()
@@ -300,7 +295,9 @@ def send_support_message():
             logging.error(f"Error generating support response: {e}")
             flash('Sorry, I encountered an error. Please try again.', 'danger')
     
-    return redirect(url_for('support', conversation_id=conversation.id))
+    if 'conversation' in locals():
+        return redirect(url_for('support', conversation_id=conversation.id))
+    return redirect(url_for('support'))
 
 @app.route('/story')
 @login_required
@@ -323,25 +320,24 @@ def generate_story():
         try:
             # Generate story using AI service
             story_content = ai_service.generate_story(
-                title=form.title.data,
-                genre=form.genre.data,
+                title=form.title.data or "",
+                genre=form.genre.data or "adventure",
                 character_name=form.character_name.data or None,
                 setting=form.setting.data or None,
-                mood=form.mood.data,
-                length=form.length.data
+                mood=form.mood.data or "mysterious",
+                length=form.length.data or "medium"
             )
             
             # Save story to database
-            story = Story(
-                user_id=current_user.id,
-                title=form.title.data,
-                content=story_content,
-                genre=form.genre.data,
-                character_name=form.character_name.data,
-                setting=form.setting.data,
-                mood=form.mood.data,
-                length=form.length.data
-            )
+            story = Story()
+            story.user_id = current_user.id
+            story.title = form.title.data or ""
+            story.content = story_content
+            story.genre = form.genre.data
+            story.character_name = form.character_name.data
+            story.setting = form.setting.data
+            story.mood = form.mood.data
+            story.length = form.length.data
             
             db.session.add(story)
             db.session.commit()

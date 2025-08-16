@@ -109,8 +109,8 @@ class AIService:
         else:
             return random.choice(responses)
     
-    def generate_story(self, title: str, genre: str, character_name: str = None, 
-                      setting: str = None, mood: str = 'mysterious', length: str = 'medium') -> str:
+    def generate_story(self, title: str, genre: str, character_name: str | None = None, 
+                      setting: str | None = None, mood: str = 'mysterious', length: str = 'medium') -> str:
         """Generate a story based on the provided parameters."""
         # Simulate processing time
         time.sleep(1.0)
